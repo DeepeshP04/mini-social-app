@@ -3,11 +3,8 @@ import api from "../services/api";
 import Navbar from "../components/Navbar";
 import CreatePost from "../components/CreatePost";
 import PostCard from "../components/PostCard";
-import { useAuth } from "../context/AuthContext";
 
 const Feed = () => {
-  const { token } = useAuth();
-
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,12 +24,12 @@ const Feed = () => {
   }, []);
 
   const handlePostCreated = (newPost) => {
-    setPosts((prevPosts) => [newPost, ...prevPosts]);
+    setPosts((prev) => [newPost, ...prev]);
   };
 
   const handlePostUpdated = (updatedPost) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) =>
+    setPosts((prev) =>
+      prev.map((post) =>
         post._id === updatedPost._id ? updatedPost : post
       )
     );
@@ -42,28 +39,36 @@ const Feed = () => {
     <>
       <Navbar />
 
-      <main className="feed-container">
-        <h1>Social Feed</h1>
-
-        {token && (
+      <main className="feed-page">
+        <div className="feed-content">
           <CreatePost onPostCreated={handlePostCreated} />
-        )}
 
-        <section className="posts-container">
+          <div className="feed-title">
+            <h1>Social Feed</h1>
+            <p>See what everyone is sharing</p>
+          </div>
+
           {loading ? (
-            <p>Loading posts...</p>
+            <div className="empty-state">
+              <p>Loading posts...</p>
+            </div>
           ) : posts.length === 0 ? (
-            <p>No posts yet. Create the first post!</p>
+            <div className="empty-state">
+              <h3>No posts yet</h3>
+              <p>Be the first person to share something!</p>
+            </div>
           ) : (
-            posts.map((post) => (
-              <PostCard
-                key={post._id}
-                post={post}
-                onPostUpdated={handlePostUpdated}
-              />
-            ))
+            <div className="posts-container">
+              {posts.map((post) => (
+                <PostCard
+                  key={post._id}
+                  post={post}
+                  onPostUpdated={handlePostUpdated}
+                />
+              ))}
+            </div>
           )}
-        </section>
+        </div>
       </main>
     </>
   );

@@ -12,14 +12,21 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <h2>Social</h2>
+      <div className="navbar-inner">
+        <h2 className="logo">Social</h2>
 
-      <div className="nav-right">
-        <span>@{user?.username}</span>
+        <div className="nav-right">
+          <span className="username">
+            @{user?.username}
+          </span>
 
-        <button onClick={handleLogout}>
-          Logout
-        </button>
+          <button
+            className="logout-btn"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
       </div>
     </nav>
   );

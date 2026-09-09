@@ -4,7 +4,6 @@ import { useAuth } from "../context/AuthContext";
 
 const PostCard = ({ post, onPostUpdated }) => {
   const { token, user } = useAuth();
-
   const [comment, setComment] = useState("");
 
   const hasLiked = post.likes.some(
@@ -28,7 +27,7 @@ const PostCard = ({ post, onPostUpdated }) => {
         likes: response.data.likes,
       });
     } catch (error) {
-      console.error(error);
+      console.error("Like failed:", error);
     }
   };
 
@@ -55,17 +54,31 @@ const PostCard = ({ post, onPostUpdated }) => {
 
       setComment("");
     } catch (error) {
-      console.error(error);
+      console.error("Comment failed:", error);
     }
   };
 
   return (
-    <div className="post-card">
+    <article className="post-card">
       <div className="post-header">
-        <strong>@{post.author.username}</strong>
+        <div className="avatar">
+          {post.author.username
+            .charAt(0)
+            .toUpperCase()}
+        </div>
+
+        <div>
+          <strong>@{post.author.username}</strong>
+
+          <small>
+            {new Date(post.createdAt).toLocaleString()}
+          </small>
+        </div>
       </div>
 
-      {post.text && <p className="post-text">{post.text}</p>}
+      {post.text && (
+        <p className="post-text">{post.text}</p>
+      )}
 
       {post.image && (
         <img
@@ -75,23 +88,30 @@ const PostCard = ({ post, onPostUpdated }) => {
         />
       )}
 
-      <div className="post-actions">
-        <button
-          onClick={handleLike}
-          className={hasLiked ? "liked" : ""}
-        >
-          {hasLiked ? "❤️ Liked" : "♡ Like"}
-        </button>
-
+      <div className="post-stats">
         <span>
           {post.likes.length}{" "}
-          {post.likes.length === 1 ? "like" : "likes"}
+          {post.likes.length === 1 ? "Like" : "Likes"}
+        </span>
+
+        <span>
+          {post.comments.length}{" "}
+          {post.comments.length === 1
+            ? "Comment"
+            : "Comments"}
         </span>
       </div>
 
-      <div className="comments">
-        <h4>Comments</h4>
+      <div className="post-actions">
+        <button
+          className={hasLiked ? "liked" : ""}
+          onClick={handleLike}
+        >
+          {hasLiked ? "❤️ Liked" : "♡ Like"}
+        </button>
+      </div>
 
+      <div className="comments-section">
         {post.comments.map((item) => (
           <div className="comment" key={item._id}>
             <strong>@{item.username}</strong>
@@ -99,18 +119,23 @@ const PostCard = ({ post, onPostUpdated }) => {
           </div>
         ))}
 
-        <form onSubmit={handleComment} className="comment-form">
+        <form
+          className="comment-form"
+          onSubmit={handleComment}
+        >
           <input
             type="text"
             placeholder="Write a comment..."
             value={comment}
-            onChange={(e) => setComment(e.target.value)}
+            onChange={(e) =>
+              setComment(e.target.value)
+            }
           />
 
-          <button type="submit">Comment</button>
+          <button type="submit">Send</button>
         </form>
       </div>
-    </div>
+    </article>
   );
 };
 

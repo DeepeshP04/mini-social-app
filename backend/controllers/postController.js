@@ -6,9 +6,17 @@ const createPost = async (req, res) => {
   try {
     const { text } = req.body;
 
-    if (!text?.trim() && !req.file) {
+    const cleanText = text?.trim() || "";
+
+    if (!cleanText && !req.file) {
       return res.status(400).json({
         message: "Post must contain text or an image",
+      });
+    }
+
+    if (cleanText.length > 1000) {
+      return res.status(400).json({
+        message: "Post cannot exceed 1000 characters",
       });
     }
 
@@ -23,22 +31,25 @@ const createPost = async (req, res) => {
     let imageUrl = "";
 
     if (req.file) {
-      const uploadResult = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            folder: "mini-social-app",
-          },
-          (error, result) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(result);
-            }
-          }
-        );
+      const uploadResult = await new Promise(
+        (resolve, reject) => {
+          const uploadStream =
+            cloudinary.uploader.upload_stream(
+              {
+                folder: "mini-social-app",
+              },
+              (error, result) => {
+                if (error) {
+                  reject(error);
+                } else {
+                  resolve(result);
+                }
+              }
+            );
 
-        uploadStream.end(req.file.buffer);
-      });
+          uploadStream.end(req.file.buffer);
+        }
+      );
 
       imageUrl = uploadResult.secure_url;
     }
@@ -48,7 +59,7 @@ const createPost = async (req, res) => {
         userId: user._id,
         username: user.username,
       },
-      text: text?.trim() || "",
+      text: cleanText,
       image: imageUrl,
       likes: [],
       comments: [],
