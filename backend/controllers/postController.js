@@ -62,7 +62,106 @@ const getPosts = async (req, res) => {
   }
 };
 
+const likePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found",
+      });
+    }
+
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // Check whether user already liked the post
+    const alreadyLiked = post.likes.some(
+      (like) => like.userId.toString() === req.user.userId
+    );
+
+    if (alreadyLiked) {
+      // Unlike
+      post.likes = post.likes.filter(
+        (like) => like.userId.toString() !== req.user.userId
+      );
+    } else {
+      // Like
+      post.likes.push({
+        userId: user._id,
+        username: user.username,
+      });
+    }
+
+    await post.save();
+
+    res.status(200).json({
+      message: alreadyLiked ? "Post unliked" : "Post liked",
+      likes: post.likes,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+
+const commentOnPost = async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({
+        message: "Comment cannot be empty",
+      });
+    }
+
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found",
+      });
+    }
+
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    post.comments.push({
+      userId: user._id,
+      username: user.username,
+      text: text.trim(),
+    });
+
+    await post.save();
+
+    res.status(201).json({
+      message: "Comment added",
+      comments: post.comments,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createPost,
   getPosts,
+  likePost,
+  commentOnPost
 };
