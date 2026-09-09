@@ -1,12 +1,12 @@
 const Post = require("../models/Post");
 const User = require("../models/User");
+const cloudinary = require("../config/cloudinary");
 
 const createPost = async (req, res) => {
   try {
-    const { text, image } = req.body;
+    const { text } = req.body;
 
-    // At least text or image is required
-    if (!text?.trim() && !image) {
+    if (!text?.trim() && !req.file) {
       return res.status(400).json({
         message: "Post must contain text or an image",
       });
@@ -20,18 +20,37 @@ const createPost = async (req, res) => {
       });
     }
 
+    let imageUrl = "";
+
+    if (req.file) {
+      const uploadResult = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: "mini-social-app",
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+
+        uploadStream.end(req.file.buffer);
+      });
+
+      imageUrl = uploadResult.secure_url;
+    }
+
     const post = await Post.create({
       author: {
         userId: user._id,
         username: user.username,
       },
-
       text: text?.trim() || "",
-
-      image: image || "",
-
+      image: imageUrl,
       likes: [],
-
       comments: [],
     });
 
@@ -40,6 +59,8 @@ const createPost = async (req, res) => {
       post,
     });
   } catch (error) {
+    console.error("Create post error:", error);
+
     res.status(500).json({
       message: "Server error",
       error: error.message,

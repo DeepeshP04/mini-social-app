@@ -4,19 +4,33 @@ const {
   createPost,
   getPosts,
   likePost,
-  commentOnPost
+  commentOnPost,
 } = require("../controllers/postController");
 
 const authMiddleware = require("../middleware/authMiddleware");
+const upload = require("../middleware/uploadMiddleware");
 
 const router = express.Router();
 
-// Public feed
 router.get("/", getPosts);
 
-// Protected create post
-router.post("/", authMiddleware, createPost);
-router.post("/:id/like", authMiddleware, likePost)
-router.post("/:id/comments", authMiddleware, commentOnPost)
+router.post(
+  "/",
+  authMiddleware,
+  upload.single("image"),
+  createPost
+);
+
+router.post(
+  "/:id/like",
+  authMiddleware,
+  likePost
+);
+
+router.post(
+  "/:id/comments",
+  authMiddleware,
+  commentOnPost
+);
 
 module.exports = router;
