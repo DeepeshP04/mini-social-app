@@ -5,9 +5,9 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Feed from "./pages/Feed";
+import Login from "./pages/login";
+import Signup from "./pages/signup";
+import Feed from "./pages/feed";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {

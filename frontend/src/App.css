@@ -1473,6 +1473,8 @@ textarea {
 
   margin-bottom: 14px;
 
+  margin-top: 10px;
+
   border: 1px solid var(--border-color);
 
   border-radius: 10px;
@@ -1500,6 +1502,8 @@ textarea {
   font-size: 16px;
 
   font-weight: 600;
+
+  margin-bottom: 14px;
 }
 
 .auth-card button:hover {
@@ -1600,7 +1604,7 @@ textarea {
   .create-post-card {
     padding: 16px;
 
-    border-radius: 21px;
+    border-radius: 10px;
 
     margin-bottom: 14px;
   }
